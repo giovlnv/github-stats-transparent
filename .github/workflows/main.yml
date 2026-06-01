@@ -74,6 +74,19 @@ jobs:
           EXCLUDED_LANGS: ${{ secrets.EXCLUDED_LANGS }}
           COUNT_STATS_FROM_FORKS: ${{ secrets.COUNT_STATS_FROM_FORKS }}
 
+      - name: Show generated files
+        run: |
+          echo "Current branch:"
+          git branch
+
+          echo ""
+          echo "Generated directory:"
+          ls -lah generated || true
+
+          echo ""
+          echo "SVG files:"
+          find generated -name "*.svg" || true
+          
       # Commits all changed files to the repository
       - name: Commit to the output branch of repo
         run: |
