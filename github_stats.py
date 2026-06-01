@@ -35,12 +35,17 @@ class Queries(object):
         headers = {
             "Authorization": f"Bearer {self.access_token}",
         }
+
         try:
             async with self.semaphore:
-                r = await self.session.post("https://api.github.com/graphql",
-                                            headers=headers,
-                                            json={"query": generated_query})
+                r = await self.session.post(
+                    "https://api.github.com/graphql",
+                    headers=headers,
+                    json={"query": generated_query}
+                )
+
             return await r.json()
+
         except Exception as e:
             print(f"GraphQL query failed: {e}")
 
@@ -53,122 +58,130 @@ class Queries(object):
                     timeout=30
                 )
 
-                print(f"GraphQL fallback status: {r.status_code}")
+            print(f"GraphQL fallback status: {r.status_code}")
 
-                return r.json()
+            return r.json()
 
-            async def query_rest(self, path: str,
-                                params: Optional[Dict] = None) -> Dict:
+    async def query_rest(
+        self,
+        path: str,
+        params: Optional[Dict] = None
+    ) -> Dict:
 
-                if params is None:
-                    params = dict()
+        if params is None:
+            params = dict()
 
-                if path.startswith("/"):
-                    path = path[1:]
+        if path.startswith("/"):
+            path = path[1:]
 
-                delay = 1
+        delay = 1
 
-                for attempt in range(8):
+        for attempt in range(8):
 
-                    headers = {
-                        "Authorization": f"token {self.access_token}",
-                    }
+            headers = {
+                "Authorization": f"token {self.access_token}",
+            }
 
-                    try:
-                        async with self.semaphore:
-                            r = await self.session.get(
-                                f"https://api.github.com/{path}",
-                                headers=headers,
-                                params=tuple(params.items())
-                            )
+            try:
 
-                        remaining = r.headers.get("X-RateLimit-Remaining")
+                async with self.semaphore:
+                    r = await self.session.get(
+                        f"https://api.github.com/{path}",
+                        headers=headers,
+                        params=tuple(params.items())
+                    )
 
-                        print(
-                            f"[Attempt {attempt + 1}] "
-                            f"{path} -> HTTP {r.status} "
-                            f"(rate remaining: {remaining})"
-                        )
-
-                        if r.status == 202:
-                            print(
-                                f"{path} returned 202. "
-                                f"Waiting {delay}s before retry..."
-                            )
-
-                            await asyncio.sleep(delay)
-                            delay *= 2
-                            continue
-
-                        if r.status != 200:
-                            text = await r.text()
-
-                            print(
-                                f"GitHub API returned "
-                                f"{r.status} for {path}"
-                            )
-
-                            print(text[:500])
-
-                            return dict()
-
-                        result = await r.json()
-
-                        if result is not None:
-                            return result
-
-                    except Exception as e:
-
-                        print(
-                            f"REST query failed for {path}: {e}"
-                        )
-
-                        try:
-
-                            async with self.semaphore:
-
-                                r = requests.get(
-                                    f"https://api.github.com/{path}",
-                                    headers=headers,
-                                    params=tuple(params.items()),
-                                    timeout=30
-                                )
-
-                            print(
-                                f"Fallback request "
-                                f"{path} -> HTTP {r.status_code}"
-                            )
-
-                            if r.status_code == 202:
-
-                                print(
-                                    f"{path} returned 202. "
-                                    f"Waiting {delay}s before retry..."
-                                )
-
-                                await asyncio.sleep(delay)
-                                delay *= 2
-                                continue
-
-                            if r.status_code == 200:
-                                return r.json()
-
-                            print(r.text[:500])
-
-                        except Exception as fallback_error:
-
-                            print(
-                                f"Fallback request failed "
-                                f"for {path}: {fallback_error}"
-                            )
-
-                print(
-                    f"Too many retries for {path}. "
-                    f"Repository data will be incomplete."
+                remaining = r.headers.get(
+                    "X-RateLimit-Remaining"
                 )
 
-                return dict()
+                print(
+                    f"[Attempt {attempt + 1}] "
+                    f"{path} -> HTTP {r.status} "
+                    f"(rate remaining: {remaining})"
+                )
 
+                if r.status == 202:
+
+                    print(
+                        f"{path} returned 202. "
+                        f"Waiting {delay}s before retry..."
+                    )
+
+                    await asyncio.sleep(delay)
+                    delay *= 2
+                    continue
+
+                if r.status != 200:
+
+                    text = await r.text()
+
+                    print(
+                        f"GitHub API returned "
+                        f"{r.status} for {path}"
+                    )
+
+                    print(text[:500])
+
+                    return dict()
+
+                result = await r.json()
+
+                if result is not None:
+                    return result
+
+            except Exception as e:
+
+                print(
+                    f"REST query failed "
+                    f"for {path}: {e}"
+                )
+
+                try:
+
+                    async with self.semaphore:
+
+                        r = requests.get(
+                            f"https://api.github.com/{path}",
+                            headers=headers,
+                            params=tuple(params.items()),
+                            timeout=30
+                        )
+
+                    print(
+                        f"Fallback request "
+                        f"{path} -> HTTP {r.status_code}"
+                    )
+
+                    if r.status_code == 202:
+
+                        print(
+                            f"{path} returned 202. "
+                            f"Waiting {delay}s before retry..."
+                        )
+
+                        await asyncio.sleep(delay)
+                        delay *= 2
+                        continue
+
+                    if r.status_code == 200:
+                        return r.json()
+
+                    print(r.text[:500])
+
+                except Exception as fallback_error:
+
+                    print(
+                        f"Fallback request failed "
+                        f"for {path}: {fallback_error}"
+                    )
+
+        print(
+            f"Too many retries for {path}. "
+            f"Repository data will be incomplete."
+        )
+
+        return dict()
     @staticmethod
     def repos_overview(contrib_cursor: Optional[str] = None,
                        owned_cursor: Optional[str] = None) -> str:
