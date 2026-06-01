@@ -2,6 +2,9 @@
 
 name: Generate Stats Images
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -86,7 +89,7 @@ jobs:
           echo ""
           echo "SVG files:"
           find generated -name "*.svg" || true
-          
+
       # Commits all changed files to the repository
       - name: Commit to the output branch of repo
         run: |
