@@ -18,7 +18,8 @@ def generate_output_folder() -> None:
     Create the output folder if it does not already exist
     """
     if not os.path.isdir("generated"):
-        print("Creating generated directory...")
+        print("Creating generated directory...",
+              flush=True)
         os.mkdir("generated")
 
 
@@ -27,12 +28,19 @@ def generate_output_folder() -> None:
 ################################################################################
 
 async def generate_overview(s: Stats) -> None:
+    print("Before contributions",
+          flush=True)
+    print(await s.total_contributions)
+
+    print("Before lines_changed",
+          flush=True)
     """
     Generate an SVG badge with summary statistics
     :param s: Represents user's GitHub statistics
     """
 
-    print("Starting overview generation...")
+    print("Starting overview generation...",
+          flush=True)
 
     if not os.path.exists("templates/overview.svg"):
         raise FileNotFoundError(
@@ -42,23 +50,28 @@ async def generate_overview(s: Stats) -> None:
     with open("templates/overview.svg", "r", encoding="utf-8") as f:
         output = f.read()
 
-    print("Calculating name...")
+    print("Calculating name...",
+          flush=True)
     output = re.sub("{{ name }}", await s.name, output)
 
-    print("Calculating stars...")
+    print("Calculating stars...",
+          flush=True)
     output = re.sub("{{ stars }}", f"{await s.stargazers:,}", output)
 
-    print("Calculating forks...")
+    print("Calculating forks...",
+          flush=True)
     output = re.sub("{{ forks }}", f"{await s.forks:,}", output)
 
-    print("Calculating contributions...")
+    print("Calculating contributions...",
+          flush=True) 
     output = re.sub(
         "{{ contributions }}",
         f"{await s.total_contributions:,}",
         output
     )
 
-    print("Calculating lines changed...")
+    print("Calculating lines changed...",
+          flush=True)
     lines_changed = await s.lines_changed
 
     changed = (
@@ -72,14 +85,16 @@ async def generate_overview(s: Stats) -> None:
         output
     )
 
-    print("Calculating views...")
+    print("Calculating views...",
+          flush=True)
     output = re.sub(
         "{{ views }}",
         f"{await s.views:,}",
         output
     )
 
-    print("Calculating repositories...")
+    print("Calculating repositories...",
+          flush=True)
     output = re.sub(
         "{{ repos }}",
         f"{len(await s.all_repos):,}",
@@ -97,7 +112,9 @@ async def generate_overview(s: Stats) -> None:
         f"generated/overview.svg written "
         f"({size} bytes)"
     )
+    lines_changed = await s.lines_changed
 
+    print("After lines_changed")
 
 async def generate_languages(s: Stats) -> None:
     """
@@ -105,7 +122,8 @@ async def generate_languages(s: Stats) -> None:
     :param s: Represents user's GitHub statistics
     """
 
-    print("Starting language generation...")
+    print("Starting language generation...",
+          flush=True)
 
     if not os.path.exists("templates/languages.svg"):
         raise FileNotFoundError(
@@ -115,7 +133,7 @@ async def generate_languages(s: Stats) -> None:
     with open("templates/languages.svg", "r", encoding="utf-8") as f:
         output = f.read()
 
-    print("Calculating languages...")
+    print("Calculating languages...", flush=True)
 
     progress = ""
     lang_list = ""
@@ -243,7 +261,9 @@ async def main() -> None:
     )
 
     timeout = aiohttp.ClientTimeout(
-        total=60
+        total=None,
+        connect=30,
+        sock_read=30
     )
 
     async with aiohttp.ClientSession(

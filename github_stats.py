@@ -47,7 +47,8 @@ class Queries(object):
             return await r.json()
 
         except Exception as e:
-            print(f"GraphQL query failed: {e}")
+            print(f"GraphQL query failed: {e}",
+                  flush=True)
 
             # Fall back on non-async requests
             async with self.semaphore:
@@ -58,7 +59,8 @@ class Queries(object):
                     timeout=30
                 )
 
-            print(f"GraphQL fallback status: {r.status_code}")
+            print(f"GraphQL fallback status: {r.status_code}",
+                  flush=True)
 
             return r.json()
 
@@ -76,7 +78,7 @@ class Queries(object):
 
         delay = 1
 
-        for attempt in range(8):
+        for attempt in range(3):
 
             headers = {
                 "Authorization": f"token {self.access_token}",
@@ -135,7 +137,8 @@ class Queries(object):
                 print(
                     f"REST query failed "
                     f"for {path}: {e}"
-                )
+                ,
+                flush=True)
 
                 try:
 
@@ -182,6 +185,7 @@ class Queries(object):
         )
 
         return dict()
+    
     @staticmethod
     def repos_overview(contrib_cursor: Optional[str] = None,
                        owned_cursor: Optional[str] = None) -> str:
@@ -413,7 +417,7 @@ Languages:
 
                 for lang in repo.get("languages", {}).get("edges", []):
                     name = lang.get("node", {}).get("name", "Other")
-                    languages = await self.languages
+                    languages = self._languages
                     if name in self._exclude_langs: continue
                     if name in languages:
                         languages[name]["size"] += lang.get("size", 0)
@@ -439,8 +443,11 @@ Languages:
         # TODO: Improve languages to scale by number of contributions to
         #       specific filetypes
         langs_total = sum([v.get("size", 0) for v in self._languages.values()])
-        for k, v in self._languages.items():
-            v["prop"] = 100 * (v.get("size", 0) / langs_total)
+        if langs_total > 0:
+            for k, v in self._languages.items():
+                v["prop"] = (
+                    100 * v.get("size", 0) / langs_total
+                )
 
     @property
     async def name(self) -> str:
@@ -555,7 +562,8 @@ Languages:
         deletions = 0
         for repo in await self.all_repos:
 
-            print(f"Checking contributor stats for {repo}")
+            print(f"Checking contributor stats for {repo}",
+                  flush=True)
 
             r = await self.queries.query_rest(
                 f"/repos/{repo}/stats/contributors"
@@ -588,7 +596,7 @@ Languages:
         total = 0
         for repo in await self.repos:
 
-            print(f"Checking traffic views for {repo}")
+            print(f"Checking traffic views for {repo}", flush=True)
 
             r = await self.queries.query_rest(
                 f"/repos/{repo}/traffic/views"
@@ -610,7 +618,11 @@ async def main() -> None:
     """
     access_token = os.getenv("ACCESS_TOKEN")
     user = os.getenv("GITHUB_ACTOR")
-    timeout = aiohttp.ClientTimeout(total=60)
+    timeout = aiohttp.ClientTimeout(
+        total=None,
+        connect=30,
+        sock_read=30
+    )
 
     async with aiohttp.ClientSession(
         timeout=timeout
