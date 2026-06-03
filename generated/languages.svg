@@ -99,7 +99,7 @@ div.ellipsis {
 
 <div>
 <span class="progress">
-<span style="background-color:#4F5D95;width:28.438%" class="progress-item"></span><span style="background-color:#DA5B0B;width:20.888%" class="progress-item"></span><span style="background-color:#b07219;width:16.278%" class="progress-item"></span><span style="background-color:#663399;width:9.505%" class="progress-item"></span><span style="background-color:#f1e05a;width:9.288%" class="progress-item"></span><span style="background-color:#945db7;width:6.927%" class="progress-item"></span><span style="background-color:#e34c26;width:3.978%" class="progress-item"></span><span style="background-color:#f34b7d;width:3.251%" class="progress-item"></span><span style="background-color:#C1F12E;width:0.528%" class="progress-item"></span><span style="background-color:#878787;width:0.494%" class="progress-item"></span><span style="background-color:#e38c00;width:0.425%" class="progress-item"></span>
+<span style="background-color:#4F5D95;width:28.387%" class="progress-item"></span><span style="background-color:#DA5B0B;width:20.850%" class="progress-item"></span><span style="background-color:#b07219;width:16.248%" class="progress-item"></span><span style="background-color:#663399;width:9.488%" class="progress-item"></span><span style="background-color:#f1e05a;width:9.271%" class="progress-item"></span><span style="background-color:#945db7;width:6.915%" class="progress-item"></span><span style="background-color:#e34c26;width:3.971%" class="progress-item"></span><span style="background-color:#f34b7d;width:3.245%" class="progress-item"></span><span style="background-color:#C1F12E;width:0.527%" class="progress-item"></span><span style="background-color:#878787;width:0.493%" class="progress-item"></span><span style="background-color:#e38c00;width:0.424%" class="progress-item"></span><span style="background-color:#000080;width:0.182%" class="progress-item"></span>
 </span>
 </div>
 
@@ -108,42 +108,42 @@ div.ellipsis {
 
 <li>
 <span class="lang">PHP</span>
-<span class="percent">28.44%</span>
+<span class="percent">28.39%</span>
 </li>
 
 <li>
 <span class="lang">Jupyter Notebook</span>
-<span class="percent">20.89%</span>
+<span class="percent">20.85%</span>
 </li>
 
 <li>
 <span class="lang">Java</span>
-<span class="percent">16.28%</span>
+<span class="percent">16.25%</span>
 </li>
 
 <li>
 <span class="lang">CSS</span>
-<span class="percent">9.50%</span>
+<span class="percent">9.49%</span>
 </li>
 
 <li>
 <span class="lang">JavaScript</span>
-<span class="percent">9.29%</span>
+<span class="percent">9.27%</span>
 </li>
 
 <li>
 <span class="lang">Visual Basic .NET</span>
-<span class="percent">6.93%</span>
+<span class="percent">6.91%</span>
 </li>
 
 <li>
 <span class="lang">HTML</span>
-<span class="percent">3.98%</span>
+<span class="percent">3.97%</span>
 </li>
 
 <li>
 <span class="lang">C++</span>
-<span class="percent">3.25%</span>
+<span class="percent">3.24%</span>
 </li>
 
 <li>
@@ -159,6 +159,11 @@ div.ellipsis {
 <li>
 <span class="lang">TSQL</span>
 <span class="percent">0.42%</span>
+</li>
+
+<li>
+<span class="lang">Lua</span>
+<span class="percent">0.18%</span>
 </li>
 
 
